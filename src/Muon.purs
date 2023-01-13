@@ -1,11 +1,13 @@
 module Muon (
-  Prop,
+  Muon,
   Html,
+  Prop,
   Event,
   EventType,
   module Signal,
   module Signal.Channel,
   muon,
+  aff,
   -- Elements
   text,
   el,
@@ -50,7 +52,9 @@ import Prelude
 
 import Data.Foldable (foldr)
 import Data.Maybe (Maybe(..))
+import Data.Traversable (traverse_)
 import Effect (Effect)
+import Effect.Aff (Aff, launchAff_)
 import Signal (Signal, runSignal)
 import Signal.Channel (Channel, channel, send, subscribe)
 
@@ -63,6 +67,26 @@ foreign import data Event :: Type
 -- Data types
 --
 
+data Muon a = Muon (Array Cmd) a
+
+instance Functor Muon where
+  map f (Muon cx a') = Muon cx (f a')
+
+instance Apply Muon where
+  apply (Muon cxa f) (Muon cxb a') = Muon (cxa <> cxb) (f a')
+
+instance Applicative Muon where
+  pure = Muon []
+
+instance Bind Muon where
+  bind (Muon cxa a') f =
+    case f a' of
+      Muon cxb b ->
+        Muon (cxa <> cxb) b
+
+data Cmd
+  = Fork (Aff Unit)
+
 data Prop
   = Attr String String
   | Handler EventType (Event -> Effect Unit)
@@ -71,15 +95,26 @@ newtype EventType
   = EventType String
 
 --
--- Entrypoint
+-- Muon
 --
 
 foreign import render_ :: (Instance -> Effect Unit) -> Effect Unit
 foreign import html_ :: Instance -> Html -> Effect Unit
 
-muon :: Signal Html -> Effect Unit
-muon sig = render_ \inst ->
-  runSignal $ html_ inst <$> sig
+muon :: Signal (Muon Html) -> Effect Unit
+muon sig =
+  render_ \inst ->
+    runSignal $ sig <#> \(Muon cx h) -> do
+      html_ inst h
+      traverse_ cmd cx
+
+cmd :: Cmd -> Effect Unit
+cmd = case _ of
+  Fork f ->
+    launchAff_ f
+
+aff :: Aff Unit -> Muon Unit
+aff = flip Muon unit <<< pure <<< Fork
 
 --
 -- Elements
