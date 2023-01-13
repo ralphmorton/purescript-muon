@@ -27,6 +27,7 @@ module Muon (
   th,
   td,
   i,
+  a,
   button,
   input,
   textarea,
@@ -58,14 +59,9 @@ foreign import data Props :: Type
 foreign import data Html :: Type
 foreign import data Event :: Type
 
-foreign import render_ :: (Instance -> Effect Unit) -> Effect Unit
-foreign import html_ :: Instance -> Html -> Effect Unit
-foreign import text_ :: String -> Html
-foreign import emptyProps_ :: Unit -> Props
-foreign import insertAttr_ :: String -> String -> Props -> Props
-foreign import insertHandler_ :: String -> (Event -> Effect Unit) -> Props -> Props
-foreign import el_ :: String -> Props -> Array Html -> Html
-foreign import eventTargetValue_ :: Maybe String -> (String -> Maybe String) -> Event -> Maybe String
+--
+-- Data types
+--
 
 data Prop
   = Attr String String
@@ -73,6 +69,13 @@ data Prop
 
 newtype EventType
   = EventType String
+
+--
+-- Entrypoint
+--
+
+foreign import render_ :: (Instance -> Effect Unit) -> Effect Unit
+foreign import html_ :: Instance -> Html -> Effect Unit
 
 muon :: Signal Html -> Effect Unit
 muon sig = render_ \inst ->
@@ -82,11 +85,19 @@ muon sig = render_ \inst ->
 -- Elements
 --
 
+foreign import text_ :: String -> Html
+
 text :: String -> Html
 text = text_
 
+foreign import el_ :: String -> Props -> Array Html -> Html
+
 el :: String -> Array Prop -> Array Html -> Html
 el tag px cx = el_ tag (props px) cx
+
+foreign import emptyProps_ :: Unit -> Props
+foreign import insertAttr_ :: String -> String -> Props -> Props
+foreign import insertHandler_ :: String -> (Event -> Effect Unit) -> Props -> Props
 
 props :: Array Prop -> Props
 props = foldr insert (emptyProps_ unit)
@@ -151,6 +162,9 @@ td = el "td"
 i :: Array Prop -> Array Html -> Html
 i = el "i"
 
+a :: Array Prop -> Array Html -> Html
+a = el "a"
+
 button :: Array Prop -> Array Html -> Html
 button = el "button"
 
@@ -196,6 +210,8 @@ change = EventType "change"
 --
 -- Utils
 --
+
+foreign import eventTargetValue_ :: Maybe String -> (String -> Maybe String) -> Event -> Maybe String
 
 eventTargetValue :: Event -> Maybe String
 eventTargetValue = eventTargetValue_ Nothing Just
