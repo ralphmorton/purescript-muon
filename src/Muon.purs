@@ -86,6 +86,8 @@ instance Bind Muon where
       Muon cxb b ->
         Muon (cxa <> cxb) b
 
+instance Monad Muon
+
 data Cmd
   = Fork (Aff Unit)
 
