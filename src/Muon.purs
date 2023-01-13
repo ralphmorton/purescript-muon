@@ -44,6 +44,8 @@ module Muon (
   keyup,
   keypress,
   change,
+  focus,
+  blur,
   -- Utils
   eventTargetValue
 ) where
@@ -241,6 +243,12 @@ keypress = EventType "keypress"
 
 change :: EventType
 change = EventType "change"
+
+focus :: EventType
+focus = EventType "focus"
+
+blur :: EventType
+blur = EventType "blur"
 
 --
 -- Utils
