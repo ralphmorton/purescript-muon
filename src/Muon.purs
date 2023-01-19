@@ -142,7 +142,7 @@ instance (
   IsSymbol k,
   Cons k a r' r,
   Cons k a s s',
-  Cons k (Channel a) t t',
+  Cons k (a -> Effect Unit) t t',
   Lacks k r',
   Lacks k s,
   Lacks k t,
@@ -154,7 +154,7 @@ instance (
     Tuple s t <- stateRL (Proxy :: Proxy l') (delete k rec)
     chan <- channel (get k rec)
     let s' = insert k <$> (subscribe chan) <*> s
-    let t' = insert k chan t
+    let t' = insert k (send chan) t
     pure (Tuple s' t')
 
 --
