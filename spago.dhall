@@ -12,7 +12,16 @@ to generate this file without the comments in this block.
 -}
 { name = "muon"
 , dependencies =
-  [ "aff", "effect", "foldable-traversable", "maybe", "prelude", "signal" ]
+  [ "aff"
+  , "effect"
+  , "foldable-traversable"
+  , "maybe"
+  , "prelude"
+  , "record"
+  , "signal"
+  , "tuples"
+  , "typelevel-prelude"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
 }
