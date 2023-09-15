@@ -40,7 +40,7 @@ export const el_ = (tag) => (props) => (children) => {
 }
 
 export const eventTargetValue_ = (nothing) => (just) => (e) => {
-  if (e.target && e.target.value) {
+  if (e.target && (e.target.value || e.target.value === '')) {
     return just(e.target.value)
   } else {
     return nothing
