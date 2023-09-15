@@ -3,7 +3,6 @@ module Muon (
   Html,
   Prop,
   Event,
-  EventType,
   module Signal,
   module Signal.Channel,
   muon,
@@ -16,32 +15,10 @@ module Muon (
   -- Elements
   text,
   el,
-  el',
-  span, span',
-  p, p',
-  hr, hr',
-  img,
-  div, div',
-  h1, h1', h2, h2', h3, h3', h4, h4', h5, h5', h6, h6',
-  table, table', thead, thead', tbody, tbody', tr, tr', th, th', td, td',
-  i, i',
-  a,
-  button,
-  input,
-  textarea,
   -- Attributes
   attr,
   on,
   (:=),
-  click,
-  mousedown,
-  mouseup,
-  keydown,
-  keyup,
-  keypress,
-  change,
-  focus,
-  blur,
   -- Utils
   eventTargetValue
 ) where
@@ -95,10 +72,7 @@ data Cmd
 
 data Prop
   = Attr String String
-  | Handler EventType (Event -> Effect Unit)
-
-newtype EventType
-  = EventType String
+  | Handler String (Event -> Effect Unit)
 
 --
 -- Muon
@@ -171,9 +145,6 @@ foreign import el_ :: String -> Props -> Array Html -> Html
 el :: String -> Array Prop -> Array Html -> Html
 el tag px cx = el_ tag (props px) cx
 
-el' :: String -> Array Html -> Html
-el' tag = el_ tag (emptyProps_ unit)
-
 foreign import emptyProps_ :: Unit -> Props
 foreign import insertAttr_ :: String -> String -> Props -> Props
 foreign import insertHandler_ :: String -> (Event -> Effect Unit) -> Props -> Props
@@ -184,125 +155,8 @@ props = foldr insert (emptyProps_ unit)
   insert prop = case prop of
     Attr k v ->
       insertAttr_ k v
-    Handler (EventType k) f ->
-      insertHandler_ k f
-
-span :: Array Prop -> Array Html -> Html
-span = el "span"
-
-span' :: Array Html -> Html
-span' = el' "span"
-
-p :: Array Prop -> Array Html -> Html
-p = el "p"
-
-p' :: Array Html -> Html
-p' = el' "p"
-
-hr :: Array Prop -> Html
-hr = flip (el "hr") []
-
-hr' :: Html
-hr' = el' "hr" []
-
-img :: Array Prop -> Html
-img = flip (el "img") []
-
-div :: Array Prop -> Array Html -> Html
-div = el "div"
-
-div' :: Array Html -> Html
-div' = el' "div"
-
-h1 :: Array Prop -> Array Html -> Html
-h1 = el "h1"
-
-h1' :: Array Html -> Html
-h1' = el' "h1"
-
-h2 :: Array Prop -> Array Html -> Html
-h2 = el "h2"
-
-h2' :: Array Html -> Html
-h2' = el' "h2"
-
-h3 :: Array Prop -> Array Html -> Html
-h3 = el "h3"
-
-h3' :: Array Html -> Html
-h3' = el' "h3"
-
-h4 :: Array Prop -> Array Html -> Html
-h4 = el "h4"
-
-h4' :: Array Html -> Html
-h4' = el' "h4"
-
-h5 :: Array Prop -> Array Html -> Html
-h5 = el "h5"
-
-h5' :: Array Html -> Html
-h5' = el' "h5"
-
-h6 :: Array Prop -> Array Html -> Html
-h6 = el "h6"
-
-h6' :: Array Html -> Html
-h6' = el' "h6"
-
-table :: Array Prop -> Array Html -> Html
-table = el "table"
-
-table' :: Array Html -> Html
-table' = el' "table"
-
-thead :: Array Prop -> Array Html -> Html
-thead = el "thead"
-
-thead' :: Array Html -> Html
-thead' = el' "thead"
-
-tbody :: Array Prop -> Array Html -> Html
-tbody = el "tbody"
-
-tbody' :: Array Html -> Html
-tbody' = el' "tbody"
-
-tr :: Array Prop -> Array Html -> Html
-tr = el "tr"
-
-tr' :: Array Html -> Html
-tr' = el' "tr"
-
-th :: Array Prop -> Array Html -> Html
-th = el "th"
-
-th' :: Array Html -> Html
-th' = el' "th"
-
-td :: Array Prop -> Array Html -> Html
-td = el "td"
-
-td' :: Array Html -> Html
-td' = el' "td"
-
-i :: Array Prop -> Array Html -> Html
-i = el "i"
-
-i' :: Array Html -> Html
-i' = el' "i"
-
-a :: Array Prop -> Array Html -> Html
-a = el "a"
-
-button :: Array Prop -> Array Html -> Html
-button = el "button"
-
-input :: Array Prop -> Html
-input = flip (el "input") []
-
-textarea :: Array Prop -> Array Html -> Html
-textarea = el "textarea"
+    Handler evt f ->
+      insertHandler_ evt f
 
 --
 -- Props
@@ -313,35 +167,8 @@ attr = Attr
 
 infixl 5 attr as :=
 
-on :: EventType -> (Event -> Effect Unit) -> Prop
+on :: String -> (Event -> Effect Unit) -> Prop
 on = Handler
-
-click :: EventType
-click = EventType "click"
-
-mousedown :: EventType
-mousedown = EventType "mousedown"
-
-mouseup :: EventType
-mouseup = EventType "mouseup"
-
-keydown :: EventType
-keydown = EventType "keydown"
-
-keyup :: EventType
-keyup = EventType "keyup"
-
-keypress :: EventType
-keypress = EventType "keypress"
-
-change :: EventType
-change = EventType "change"
-
-focus :: EventType
-focus = EventType "focus"
-
-blur :: EventType
-blur = EventType "blur"
 
 --
 -- Utils
