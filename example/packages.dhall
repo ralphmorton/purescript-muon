@@ -104,3 +104,15 @@ let upstream =
 
 in  upstream
   with muon = ../spago.dhall as Location
+  with signal =
+    { dependencies =
+        [ "aff"
+        , "effect"
+        , "either"
+        , "foldable-traversable"
+        , "maybe"
+        , "prelude"
+        ]
+    , repo = "https://github.com/ralphmorton/purescript-signal.git"
+    , version = "9c84b60b15446e00c29a2d2af940117d9bc2a7d6"
+    }

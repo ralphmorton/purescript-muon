@@ -5,20 +5,12 @@ import Prelude hiding (div)
 import Data.Foldable (traverse_)
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
-import Effect.Aff (Aff)
-import Effect.Class (liftEffect)
-import Effect.Console (log)
 import Muon (
   Html,
   Muon,
   Signal,
-  button,
-  click,
-  div',
+  el,
   eventTargetValue,
-  hr',
-  input,
-  keyup,
   muon,
   on,
   text,
@@ -33,21 +25,21 @@ app :: Effect (Signal (Muon Html))
 app = do
   sig /\ cx <- state { i: 0, s: "something" }
   pure $ sig <#> \{ i, s } -> do
-    let decrement = const (cx.i $ i - 1)
-    let increment = const (cx.i $ i + 1)
-    pure $ div' [
-      div' [
-        div' [text s],
-        input [
+    let decrement = const (cx.i $ \v ->  v - 1)
+    let increment = const (cx.i $ \v -> v + 1)
+    pure $ el "div" [] [
+      el "div" [] [
+        el "div" [] [text s],
+        el "input" [
           "type" := "text",
           "value" := s,
-          on keyup $ traverse_ cx.s <<< eventTargetValue
-        ]
+          on "input" $ traverse_ (cx.s <<< const) <<< eventTargetValue
+        ] []
       ],
-      hr',
-      div' [
-        div' [text $ show i],
-        button [on click decrement] [text "-"],
-        button [on click increment] [text "+"]
+      el "hr" [] [],
+      el "div" [] [
+        el "div" [] [text $ show i],
+        el "button" [on "click" decrement] [text "-"],
+        el "button" [on "click" increment] [text "+"]
       ]
     ]

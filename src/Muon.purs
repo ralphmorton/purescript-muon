@@ -20,7 +20,8 @@ module Muon (
   on,
   (:=),
   -- Utils
-  eventTargetValue
+  eventTargetValue,
+  eventKey
 ) where
 
 import Prelude
@@ -35,7 +36,7 @@ import Effect.Aff (Aff, launchAff_)
 import Prim.Row (class Cons, class Lacks)
 import Record (delete, get, insert)
 import Signal (Signal, constant, runSignal)
-import Signal.Channel (Channel, channel, send, subscribe)
+import Signal.Channel (Channel, channel, subscribe, update)
 import Type.Proxy (Proxy(..))
 import Type.RowList (class RowToList, Cons, Nil, RowList)
 
@@ -116,7 +117,7 @@ instance (
   IsSymbol k,
   Cons k a r' r,
   Cons k a s s',
-  Cons k (a -> Effect Unit) t t',
+  Cons k ((a -> a) -> Effect Unit) t t',
   Lacks k r',
   Lacks k s,
   Lacks k t,
@@ -128,7 +129,7 @@ instance (
     Tuple s t <- stateRL (Proxy :: Proxy l') (delete k rec)
     chan <- channel (get k rec)
     let s' = insert k <$> (subscribe chan) <*> s
-    let t' = insert k (send chan) t
+    let t' = insert k (update chan) t
     pure (Tuple s' t')
 
 --
@@ -178,3 +179,8 @@ foreign import eventTargetValue_ :: Maybe String -> (String -> Maybe String) -> 
 
 eventTargetValue :: Event -> Maybe String
 eventTargetValue = eventTargetValue_ Nothing Just
+
+foreign import eventKey_ :: Maybe String -> (String -> Maybe String) -> Event -> Maybe String
+
+eventKey :: Event -> Maybe String
+eventKey = eventKey_ Nothing Just

@@ -46,3 +46,11 @@ export const eventTargetValue_ = (nothing) => (just) => (e) => {
     return nothing
   }
 }
+
+export const eventKey_ = (nothing) => (just) => (e) => {
+  if (e.key) {
+    return just(e.key)
+  } else {
+    return nothing
+  }
+}
